@@ -27,6 +27,8 @@ RTS_PIN_NUM ::= 19
 CTS_PIN_NUM ::= 18
 PWR_ON_NUM ::= 27
 
+logger ::= log.default
+
 main:
   driver := create_driver
 
@@ -47,40 +49,39 @@ create_driver -> Monarch:
 
   port := uart.Port --tx=tx --rx=rx --rts=rts --cts=cts --baud_rate=cellular.Cellular.DEFAULT_BAUD_RATE
 
-  return Monarch port --logger=log.default
+  return Monarch port --logger=logger
 
 reset driver:
   driver.wait_for_ready
   driver.reset
 
 connect driver/cellular.Cellular -> bool:
-  print "WAITING FOR MODULE..."
+  logger.info "WAITING FOR MODULE..."
   driver.wait_for_ready
-  print "model: $driver.model"
-  print "version $driver.version"
-  print "iccid: $driver.iccid"
-  print "CONFIGURING..."
+  logger.info "model: $driver.model"
+  logger.info "version $driver.version"
+  logger.info "iccid: $driver.iccid"
+  logger.info "CONFIGURING..."
   driver.configure APN --bands=BANDS --rats=RATS
-  print "ENABLING RADIO..."
+  logger.info "ENABLING RADIO..."
   driver.enable_radio
-  print "CONNECTING..."
+  logger.info "CONNECTING..."
   try:
     dur := Duration.of:
       driver.connect
-    print "CONNECTED (in $dur)"
-  finally: | is_exception _ |
+    logger.info "CONNECTED (in $dur)"
+  finally: | is_exception exception |
     if is_exception:
       critical_do:
         driver.close
-        print "CONNECTION FAILED"
+        logger.info "CONNECTION FAILED WITH '$exception'"
         return false
   return true
 
 visit_google network_interface/net.Interface:
   host := "www.google.com"
 
-  network := network_interface
-  client := Client network
+  client := Client network_interface
 
   response := client.get host "/"
 
@@ -88,4 +89,4 @@ visit_google network_interface/net.Interface:
   while data := response.body.read:
     bytes += data.size
 
-  print "Read $bytes bytes from http://$host/"
+  logger.info "Read $bytes bytes from http://$host/"
