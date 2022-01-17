@@ -25,7 +25,6 @@ TX_PIN_NUM ::= 5
 RX_PIN_NUM ::= 23
 RTS_PIN_NUM ::= 19
 CTS_PIN_NUM ::= 18
-PWR_ON_NUM ::= 27
 
 logger ::= log.default
 
@@ -39,9 +38,6 @@ main:
   driver.close
 
 create_driver -> Monarch:
-  pwr_on := gpio.Pin PWR_ON_NUM
-  pwr_on.config --output --open_drain
-  pwr_on.set 1
   tx := gpio.Pin TX_PIN_NUM
   rx := gpio.Pin RX_PIN_NUM
   rts := gpio.Pin RTS_PIN_NUM
