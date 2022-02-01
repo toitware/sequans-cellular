@@ -13,6 +13,7 @@ import monitor
 import serial.ports.uart as uart
 import xmodem_1k
 import experimental.exceptions show *
+import net.modules.dns
 
 import cellular show *
 import cellular.base show *
@@ -309,10 +310,6 @@ abstract class SequansCellular extends CellularBase:
       line := reader.read_bytes_until session.s3
       at.parse_response line --plain
 
-    session.add_response_parser "+SQNDNSLKUP" :: | reader |
-      line := reader.read_bytes_until session.s3
-      at.parse_response line --plain
-
     return session
 
   close:
@@ -459,15 +456,7 @@ class Interface_ extends net.Interface:
   constructor .cellular_:
 
   resolve host/string -> List:
-    // First try parsing it as an ip.
-    catch:
-      return [net.IpAddress.parse host]
-
-    cellular_.at_.do:
-      result := it.send
-        SQNDNSLKUP host
-      return result.single[1..].map: net.IpAddress.parse it
-    unreachable
+    return [dns.lookup host]
 
   udp_open -> udp.Socket:
     return udp_open --port=null
@@ -503,12 +492,6 @@ class Interface_ extends net.Interface:
     unreachable
 
   close:
-
-class SQNDNSLKUP extends at.Command:
-  static TIMEOUT ::= Duration --s=20
-
-  constructor host/string:
-    super.set "+SQNDNSLKUP" --parameters=[host] --timeout=TIMEOUT
 
 class SQNSSHDN extends at.Command:
   static TIMEOUT ::= Duration --s=10
