@@ -64,7 +64,7 @@ class Socket_:
   socket_call [block]:
     // Ensure no other socket call can come in between.
     cellular_.at_.do: | session/at.Session |
-      e := catch --trace:
+      e := catch:
         return block.call session
       throw (last_error_ session e)
     unreachable
