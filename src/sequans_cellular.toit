@@ -446,6 +446,18 @@ abstract class SequansCellular extends CellularBase:
   network_interface -> net.Interface:
     return Interface_ this
 
+  sms message/string number/string:
+    at_.do: | session/at.Session |
+      session.set "+CEMODE" [2]
+    enable_radio
+    at_.do: | session/at.Session |
+      session.set "+CMGF" [1]
+      session.read "+CSCA"
+      session.writer_.write "+CMGS $number"
+      session.writer_.write #[0x0D]
+      session.writer_.write message
+      session.writer_.write #[0x1A]
+
 class SequansConstants implements Constants:
   RatCatM1 -> int?: return null
 
@@ -503,6 +515,7 @@ class Interface_ extends net.Interface:
     unreachable
 
   close:
+
 
 class SQNDNSLKUP extends at.Command:
   static TIMEOUT ::= Duration --s=20

@@ -30,7 +30,10 @@ logger ::= log.default
 
 main:
   driver := create_driver
+  driver.wait_for_ready
+  driver.sms "test" "..."
 
+no_run driver:
   if not connect driver: return
 
   network_interface := driver.network_interface
