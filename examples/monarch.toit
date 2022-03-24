@@ -15,7 +15,7 @@ import http.client show Client
 import log
 import net
 import uart
-import sequance_cellular.monarch show Monarch
+import sequans_cellular.monarch show Monarch
 
 APN ::= "onomondo"
 BANDS ::= [ 20, 8 ]

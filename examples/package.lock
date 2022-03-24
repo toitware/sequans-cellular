@@ -1,7 +1,7 @@
 prefixes:
   cellular: cellular
   http: pkg-http
-  sequance_cellular: ..
+  sequans_cellular: ..
 packages:
   ..:
     path: ..

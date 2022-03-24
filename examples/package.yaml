@@ -5,5 +5,5 @@ dependencies:
   http:
     url: github.com/toitlang/pkg-http
     version: ^1.5.0
-  sequance_cellular:
+  sequans_cellular:
     path: ..
