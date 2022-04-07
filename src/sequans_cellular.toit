@@ -386,13 +386,10 @@ abstract class SequansCellular extends CellularBase:
   configure apn --bands=null --rats=null:
     at_.do: | session/at.Session |
       // Set connection arguments.
-      should_reboot := false
+
       while true:
-        if should_reboot: wait_for_ready_ session
-
+        should_reboot := false
         enter_configuration_mode_ session
-
-        should_reboot = false
 
         // Set unsolicited events for CEREG to get radio ready.
         session.set "+CEREG" [2]
@@ -438,6 +435,10 @@ abstract class SequansCellular extends CellularBase:
 
   reboot_ session/at.Session:
     on_reset session
+    // Rebooting the module should get it back into a ready state. We avoid
+    // calling $wait_for_ready_ because it flips the power on, which is too
+    // heavy an operation.
+    5.repeat: if select_baud_ session: return
     wait_for_ready_ session
 
   set_baud_rate_ session/at.Session baud_rate/int:
