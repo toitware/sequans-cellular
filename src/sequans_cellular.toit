@@ -318,17 +318,14 @@ abstract class SequansCellular extends CellularBase:
   close:
     try:
       sockets_.values.do: it.closed_
-      at_.do:
-        if not it.is_closed:
-          it.send CFUN.offline
-          if false:
-            // TODO(kasper): Shutting down seems to get us in trouble. After this,
-            // the Monarch chips stops responding to AT commands - even after unplugging
-            // it and waiting for a while? Weird.
-            it.send SQNSSHDN
-            // Wait for definitive shutdown as indicated by receiving
-            // the +SQNSSHDN URC message.
-            closed_.get
+      2.repeat: | attempt/int |
+        catch: with_timeout --ms=1_500: at_.do:
+          if not it.is_closed:
+            it.send CFUN.offline
+          return
+        // If the chip was recently rebooted, wait for it to be responsive before
+        // communicating with it again. Only do this once.
+        if attempt == 0: wait_for_ready
     finally:
       at_session_.close
       uart_.close
