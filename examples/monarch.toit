@@ -11,6 +11,7 @@ The example resets the modem before connecting to remove any unexpected state
 */
 
 import http
+import log
 import net.cellular
 
 main:
@@ -22,6 +23,9 @@ main:
     cellular.CONFIG_UART_RX: 23,
     cellular.CONFIG_UART_RTS: 19,
     cellular.CONFIG_UART_CTS: 18,
+
+    // TODO(kasper): Use cellular.CONFIG_LOG_LEVEL.
+    "log.level": log.INFO_LEVEL,
   }
 
   print "Opening cellular network"

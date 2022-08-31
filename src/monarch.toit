@@ -42,17 +42,17 @@ class MonarchService extends CellularServiceDefinition:
   create_driver --port/uart.Port --power/gpio.Pin? --reset/gpio.Pin? -> cellular.Cellular:
     // TODO(kasper): If power or reset are given, we should probably
     // throw an exception.
-    return Monarch port
+    return Monarch port --logger=create_logger
 
 /**
 Driver for Sequans Monarch, GSM communicating over NB-IoT & M1.
 */
 class Monarch extends SequansCellular:
-  constructor
-      uart
-      --logger=log.default:
+  constructor uart --logger=log.default:
     super uart --logger=logger --default_baud_rate=921600 --use_psm=false
 
   on_connected_ session/at.Session:
+    // Do nothing.
 
   on_reset session/at.Session:
+    // Do nothing.
