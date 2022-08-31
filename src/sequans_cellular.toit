@@ -36,7 +36,7 @@ monitor SocketState_:
     state_ |= state
 
   clear state:
-    // Guard against clearing inread state (e.g. if state was updated
+    // Guard against clearing unread state (e.g. if state was updated
     // in between wait_for and clear).
     if not dirty_:
       state_ &= ~state
@@ -78,7 +78,16 @@ class TcpSocket extends Socket_ implements tcp.Socket:
 
   peer_address/net.SocketAddress ::= ?
 
+  // TODO(kasper): Deprecated. Remove.
   set_no_delay value/bool:
+    no_delay = value
+
+  no_delay -> bool:
+    // TODO(kasper): Implement this.
+    return false
+
+  no_delay= value/bool -> none:
+    // TODO(kasper): Implement this.
 
   constructor cellular id .peer_address:
     super cellular id
@@ -447,7 +456,7 @@ abstract class SequansCellular extends CellularBase:
 class SequansConstants implements Constants:
   RatCatM1 -> int?: return null
 
-class Interface_ extends net.Interface:
+class Interface_ implements net.Interface:
   static FREE_PORT_RANGE ::= 1 << 14
 
   cellular_/SequansCellular
@@ -455,6 +464,13 @@ class Interface_ extends net.Interface:
   free_port_ := 0
 
   constructor .cellular_:
+
+  is_closed -> bool:
+    // TODO(kasper): Implement this?
+    return false
+
+  address -> net.IpAddress:
+    unreachable
 
   resolve host/string -> List:
     // First try parsing it as an ip.
@@ -467,10 +483,7 @@ class Interface_ extends net.Interface:
       return result.single[1..].map: net.IpAddress.parse it
     unreachable
 
-  udp_open -> udp.Socket:
-    return udp_open --port=null
-
-  udp_open --port/int? -> udp.Socket:
+  udp_open --port/int?=null -> udp.Socket:
     id := socket_id_
     if not port or port == 0:
       // Best effort for rolling a free port.
@@ -478,6 +491,11 @@ class Interface_ extends net.Interface:
     socket := UdpSocket cellular_ id port
     cellular_.sockets_.update id --if_absent=(: socket): throw "socket already exists"
     return socket
+
+  tcp_connect host/string port/int -> tcp.Socket:
+    ips := resolve host
+    return tcp_connect
+        net.SocketAddress ips[0] port
 
   tcp_connect address/net.SocketAddress -> tcp.Socket:
     id := socket_id_
@@ -497,10 +515,8 @@ class Interface_ extends net.Interface:
     throw
       ResourceExhaustedException "no more sockets available"
 
-  address -> net.IpAddress:
-    unreachable
-
   close:
+    // Do nothing so far.
 
 class SQNDNSLKUP extends at.Command:
   static TIMEOUT ::= Duration --s=20
