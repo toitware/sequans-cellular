@@ -24,8 +24,7 @@ main:
     cellular.CONFIG_UART_RTS: 19,
     cellular.CONFIG_UART_CTS: 18,
 
-    // TODO(kasper): Use cellular.CONFIG_LOG_LEVEL.
-    "log.level": log.INFO_LEVEL,
+    cellular.CONFIG_LOG_LEVEL: log.INFO_LEVEL,
   }
 
   print "Opening cellular network"
